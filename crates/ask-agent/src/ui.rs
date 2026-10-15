@@ -3,7 +3,7 @@
 
 use egui::{Align, Color32, Key, Layout, Rect, RichText, Stroke, pos2, vec2};
 
-use crate::hub::{Snapshot, Status, colour};
+use crate::hub::{Snapshot, Status, Turn, colour};
 
 /// The app's translation of an interface string.
 pub type Tr<'a> = &'a dyn Fn(&'static str) -> String;
@@ -31,6 +31,8 @@ pub struct View<'a> {
     pub snapshot: Option<&'a Snapshot>,
     pub agents: &'a [String],
     pub actions: &'a [QuickAction],
+    pub history: &'a [Turn],
+    pub instruction: &'a str,
 }
 
 const WIDTH: f32 = 340.0;
@@ -76,6 +78,27 @@ pub fn bubble(ctx: &egui::Context, anchor: Rect, view: &View, draft: &mut String
                 });
             });
             let status = view.snapshot.map(|s| s.status);
+            if !view.instruction.is_empty() || !view.history.is_empty() {
+                egui::CollapsingHeader::new(tr("Conversation"))
+                    .id_salt(("ask_conversation", view.history.len()))
+                    .default_open(!view.history.is_empty())
+                    .show(ui, |ui| {
+                        egui::ScrollArea::vertical().id_salt("ask_conversation_scroll").max_height(160.0).show(ui, |ui| {
+                            for turn in view.history {
+                                ui.label(RichText::new(tr("You")).strong());
+                                ui.label(&turn.instruction);
+                                ui.label(RichText::new(tr("Agent")).strong());
+                                ui.label(&turn.answer);
+                                ui.separator();
+                            }
+                            if !view.instruction.is_empty() {
+                                ui.label(RichText::new(tr("Current instruction")).strong());
+                                ui.label(view.instruction);
+                            }
+                        });
+                    });
+            }
+
             if let Some(s) = view.snapshot {
                 for note in &s.notes {
                     ui.label(RichText::new(note).weak());

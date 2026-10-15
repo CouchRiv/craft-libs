@@ -28,6 +28,13 @@ Choosing an action only fills the editable instruction. The person still presses
 The app owns its presets and their wording; the shared UI adds no document operation or
 permission. Prompts are suggestions, not enforcement of read-only or signing policy.
 
+## Visible conversation
+
+`ui::View::history` contains the prior instruction/answer pairs and `instruction` is the current request.
+The bounded, collapsible Conversation panel exposes these exchanges in the bubble without changing
+the wire protocol. Each app records the instruction with the agent's answer in its native comments
+or notes so that the context remains after Keep. This is conversation context, not document version history.
+
 ## Wire protocol
 
 - `agent.listen {timeoutMs?, agent?}` → `{id, instruction, history, selection, document, agent}` or `{none: true}`
