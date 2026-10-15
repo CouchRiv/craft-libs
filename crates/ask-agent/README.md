@@ -12,13 +12,21 @@ holds no key.
   `agent.reply` (`AgentHub::handle`, called from the control channel's connection threads). Refusals
   carry stable codes: `HELD`, `NOT_OWNER`, `NO_REQUEST`, `INVALID_PARAMS`, `READ_ONLY_REQUEST`.
 - `ui` (feature `egui`): `chip` beside the selection and `bubble` (instruction, agent picker, progress
-  notes, answer, Keep / Undo / follow-up). egui's visuals only; the app passes its translation function.
+  notes, answer, Keep / Undo / follow-up, and a compact Actions menu). egui's visuals only; the app passes its translation function.
 
 ## What stays in each app
 
-About 250 lines: the selection and document as JSON, grouping the agent's edits into one undo step,
+The app adapter supplies the selection and document as JSON, grouping the agent's edits into one undo step,
 authoring them "Agent (name)", refusing the person's edits that touch a held target, and a closing
 comment with the agent's answer.
+
+## App-specific action shortcuts
+
+`ui::View::actions` accepts a slice of `ui::QuickAction { label, group, instruction }`.
+An empty `group` places an item at the menu root; other values form native submenus.
+Choosing an action only fills the editable instruction. The person still presses Send.
+The app owns its presets and their wording; the shared UI adds no document operation or
+permission. Prompts are suggestions, not enforcement of read-only or signing policy.
 
 ## Wire protocol
 
